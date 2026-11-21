@@ -16,7 +16,7 @@
   #bar { width: 260px; height: 6px; margin: 14px auto 0; background: #3a2f44; border-radius: 3px; overflow: hidden; }
   #bar i { display: block; height: 100%; width: 0; background: #ffb347; transition: width .3s; }
 </style>
-<meta name="build" content="cb19a78"><script>console.info("RuneCraft build cb19a78")</script></head>
+<meta name="build" content="a4a8ce6"><script>console.info("RuneCraft build a4a8ce6")</script></head>
 <body>
 <script>
   // ?join joins the shared town through this page's /ws relay (browser netcode still fails
@@ -50,12 +50,15 @@
   // button or finger is held and dragged instead: <body data-drag="1">.
   const framed = window.self !== window.top || new URLSearchParams(location.search).has("embed");
   const drag = () => { if (framed) document.body.dataset.drag = "1"; sync(); };
-  const sync = () => { play.hidden = document.pointerLockElement === canvas || !document.body.dataset.status || document.body.dataset.drag === "1"; };
+  // Coming from the poster (?embed) the poster click already started the game: no second Play button;
+  // the next click on the game locks the pointer.
+  const fromPoster = new URLSearchParams(location.search).has("embed");
+  const sync = () => { play.hidden = fromPoster || document.pointerLockElement === canvas || !document.body.dataset.status || document.body.dataset.drag === "1"; };
   document.addEventListener("pointerlockchange", sync);
   document.addEventListener("pointerlockerror", drag);
   new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["data-status"] });
-  const m = await import("./pkg-cb19a78/mage.js");
-  m.default({ module_or_path: "./pkg-cb19a78/mage_bg.wasm" }).catch((e) => {
+  const m = await import("./pkg-a4a8ce6/mage.js");
+  m.default({ module_or_path: "./pkg-a4a8ce6/mage_bg.wasm" }).catch((e) => {
     if (!String(e).includes("Using exceptions for control flow")) { msg.textContent = "Could not start: " + e; console.error(e); }
   });
 </script>
