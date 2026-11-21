@@ -16,8 +16,17 @@
   #bar { width: 260px; height: 6px; margin: 14px auto 0; background: #3a2f44; border-radius: 3px; overflow: hidden; }
   #bar i { display: block; height: 100%; width: 0; background: #ffb347; transition: width .3s; }
 </style>
-<meta name="build" content="34fc008-dirty"><script>console.info("RuneCraft build 34fc008-dirty")</script></head>
+<meta name="build" content="f270062-dirty"><script>console.info("RuneCraft build f270062-dirty")</script></head>
 <body>
+<script>
+  // ?join joins the shared town through this page's /ws relay (browser netcode still fails
+  // the handshake, so solo stays the default); an explicit ?connect=... wins.
+  (() => { const q = new URLSearchParams(location.search);
+    if (q.has("join") && !q.has("connect") && location.protocol.startsWith("http")) {
+      q.set("connect", (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+      history.replaceState(null, "", location.pathname + "?" + q.toString().replace(/%3A/g, ":").replace(/%2F/g, "/") + location.hash);
+    } })();
+</script>
 <div id="box"><canvas id="game3d" tabindex="0"></canvas></div>
 <button id="play" hidden>Click to play</button>
 <div id="load"><div><b>RUNECRAFT</b><div id="msg">Loading the world...</div><div id="bar"><i></i></div><div style="opacity:.7;margin-top:10px">Click to look around, WASD to move, mouse to cast</div></div></div>
@@ -49,6 +58,34 @@
   m.default({ module_or_path: "./pkg/mage_bg.wasm" }).catch((e) => {
     if (!String(e).includes("Using exceptions for control flow")) { msg.textContent = "Could not start: " + e; console.error(e); }
   });
+</script>
+<div id="live" hidden></div>
+<form id="fb"><button type="button" id="fbopen" aria-label="Feedback">✎</button><input id="fbtext" maxlength="500" placeholder="Feedback" hidden><button id="fbsend" hidden>Send</button></form>
+<style>
+  #live { position: fixed; top: 10px; right: 12px; padding: 4px 10px; border-radius: 999px; background: #0008; color: #fff; font: 600 13px system-ui, sans-serif; pointer-events: none; }
+  #live::before { content: "● "; color: #5f5; }
+  #fb { position: fixed; left: 12px; bottom: 12px; display: flex; gap: 6px; font: 14px system-ui, sans-serif; }
+  #fb button, #fb input { border: 1px solid #fff6; border-radius: 999px; background: #000a; color: #fff; padding: 7px 12px; font: inherit; }
+  #fb input { width: min(60vw, 340px); outline: none; }
+</style>
+<script>
+  // Live player count and a one-line feedback box (tools/serve-web.ts stores it).
+  (() => {
+    let id = ""; try { id = localStorage.getItem("rc-id") || ""; } catch {}
+    if (!/^[a-z0-9]{8,32}$/.test(id)) { id = Math.random().toString(36).slice(2, 14).padEnd(8, "0"); try { localStorage.setItem("rc-id", id); } catch {} }
+    // On a static copy (GitHub Pages) the count and feedback go to the game's own server.
+    const api = location.hostname.endsWith("github.io") ? "https://galaxy.tail9445e0.ts.net:10000/api/" : "api/";
+    const live = document.getElementById("live");
+    const ping = () => fetch(api + "live?id=" + id).then((r) => r.json()).then((d) => { live.textContent = d.playing; live.hidden = false; }).catch(() => {});
+    ping(); setInterval(ping, 20000);
+    const form = document.getElementById("fb"), open = document.getElementById("fbopen"), text = document.getElementById("fbtext"), send = document.getElementById("fbsend");
+    const show = (on) => { text.hidden = send.hidden = !on; if (on) { document.exitPointerLock?.(); text.focus(); } };
+    open.onclick = () => show(text.hidden);
+    for (const t of ["keydown", "keyup", "keypress"]) text.addEventListener(t, (e) => { e.stopPropagation(); if (t === "keydown" && e.key === "Escape") show(false); });
+    form.onsubmit = (e) => { e.preventDefault(); const v = text.value.trim(); if (!v) return;
+      fetch(api + "feedback", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, text: v }) })
+        .then((r) => r.json()).then((d) => { if (d.ok) { text.value = ""; text.placeholder = "Thanks"; show(false); } }).catch(() => {}); };
+  })();
 </script>
 </body>
 </html>
