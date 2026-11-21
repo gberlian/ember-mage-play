@@ -16,7 +16,7 @@
   #bar { width: 260px; height: 6px; margin: 14px auto 0; background: #3a2f44; border-radius: 3px; overflow: hidden; }
   #bar i { display: block; height: 100%; width: 0; background: #ffb347; transition: width .3s; }
 </style>
-<meta name="build" content="f270062-dirty"><script>console.info("RuneCraft build f270062-dirty")</script></head>
+<meta name="build" content="cb19a78"><script>console.info("RuneCraft build cb19a78")</script></head>
 <body>
 <script>
   // ?join joins the shared town through this page's /ws relay (browser netcode still fails
@@ -54,10 +54,30 @@
   document.addEventListener("pointerlockchange", sync);
   document.addEventListener("pointerlockerror", drag);
   new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["data-status"] });
-  const m = await import("./pkg/mage.js");
-  m.default({ module_or_path: "./pkg/mage_bg.wasm" }).catch((e) => {
+  const m = await import("./pkg-cb19a78/mage.js");
+  m.default({ module_or_path: "./pkg-cb19a78/mage_bg.wasm" }).catch((e) => {
     if (!String(e).includes("Using exceptions for control flow")) { msg.textContent = "Could not start: " + e; console.error(e); }
   });
+</script>
+<div id="keys" hidden>
+  <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move <kbd>Space</kbd> jump <kbd>Mouse</kbd> look</p>
+  <p><kbd>LMB</kbd><kbd>RMB</kbd><kbd>Q</kbd><kbd>F</kbd><kbd>E</kbd><kbd>C</kbd> spells</p>
+  <p><kbd>F6</kbd> then <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> class <kbd>Tab</kbd> talents <kbd>I</kbd> bag</p>
+  <p><kbd>R</kbd> at a ship's helm: take it <kbd>W</kbd><kbd>S</kbd> speed <kbd>A</kbd><kbd>D</kbd> steer <kbd>Space</kbd><kbd>C</kbd> up/down</p>
+  <p><kbd>G</kbd> doors and people <kbd>H</kbd> hide this</p>
+</div>
+<style>
+  #keys { position: fixed; left: 50%; top: 16px; transform: translateX(-50%); max-width: calc(100vw - 32px); padding: 8px 14px; border-radius: 12px; background: #0b0812d9; color: #fff; font: 14px/1.4 system-ui, sans-serif; pointer-events: none; }
+  #keys p { margin: 4px 0; }
+  kbd { display: inline-block; min-width: 1.4em; margin: 0 2px; padding: 1px 6px; border: 1px solid #fff7; border-bottom-width: 2px; border-radius: 5px; font: 600 12px/1.5 ui-monospace, monospace; text-align: center; }
+</style>
+<script>
+  // Controls card: shown for the first 25 s of play, H toggles it.
+  (() => { const k = document.getElementById("keys"); let timer = 0;
+    const started = () => { if (k.dataset.shown) return; k.dataset.shown = "1"; k.hidden = false; timer = setTimeout(() => { k.hidden = true; }, 25000); };
+    document.addEventListener("pointerdown", started, { capture: true });
+    addEventListener("keydown", (e) => { if (e.code === "KeyH" && e.target.tagName !== "INPUT") { clearTimeout(timer); k.hidden = !k.hidden; } });
+  })();
 </script>
 <div id="live" hidden></div>
 <form id="fb"><button type="button" id="fbopen" aria-label="Feedback">✎</button><input id="fbtext" maxlength="500" placeholder="Feedback" hidden><button id="fbsend" hidden>Send</button></form>

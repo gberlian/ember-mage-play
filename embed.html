@@ -10,10 +10,11 @@
   #go span { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px; border-radius: 50%; background: #1a1424cc; border: 2px solid #fff8; }
   #go span::after { content: ""; position: absolute; left: 33px; top: 24px; border-style: solid; border-width: 18px 0 18px 28px; border-color: transparent transparent transparent #fff; }
   #go:hover span { background: #2a1f3acc; }
+  #go b { position: absolute; left: 0; right: 0; top: calc(50% + 54px); text-align: center; color: #fff; font: 700 22px/1 system-ui, sans-serif; text-shadow: 0 2px 8px #000; }
 </style>
 </head>
 <body>
-<button id="go" aria-label="Play"><span></span></button>
+<button id="go" aria-label="Play"><span></span><b>Click to play</b></button>
 <script>
   // The X timeline shows this page in a small sandboxed frame: the poster first, the game on a tap.
   document.getElementById("go").addEventListener("click", () => { location.href = "./?embed=1"; });
