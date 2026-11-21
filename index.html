@@ -16,14 +16,16 @@
   #bar { width: 260px; height: 6px; margin: 14px auto 0; background: #3a2f44; border-radius: 3px; overflow: hidden; }
   #bar i { display: block; height: 100%; width: 0; background: #ffb347; transition: width .3s; }
 </style>
-<meta name="build" content="a4a8ce6"><script>console.info("RuneCraft build a4a8ce6")</script></head>
+<meta name="build" content="399b344"><script>console.info("RuneCraft build 399b344")</script></head>
 <body>
 <script>
-  // ?join joins the shared town through this page's /ws relay (browser netcode still fails
-  // the handshake, so solo stays the default); an explicit ?connect=... wins.
+  // Everyone joins the shared town (?solo plays alone; an explicit ?connect=... wins). The page
+  // server relays /ws to the game server; copies hosted elsewhere join the public server.
   (() => { const q = new URLSearchParams(location.search);
-    if (q.has("join") && !q.has("connect") && location.protocol.startsWith("http")) {
-      q.set("connect", (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+    if (!q.has("solo") && !q.has("connect") && location.protocol.startsWith("http")) {
+      const own = location.port === "10000" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
+      q.set("connect", own ? (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws"
+        : "wss://galaxy.tail9445e0.ts.net:10000/ws");
       history.replaceState(null, "", location.pathname + "?" + q.toString().replace(/%3A/g, ":").replace(/%2F/g, "/") + location.hash);
     } })();
 </script>
@@ -57,8 +59,8 @@
   document.addEventListener("pointerlockchange", sync);
   document.addEventListener("pointerlockerror", drag);
   new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["data-status"] });
-  const m = await import("./pkg-a4a8ce6/mage.js");
-  m.default({ module_or_path: "./pkg-a4a8ce6/mage_bg.wasm" }).catch((e) => {
+  const m = await import("./pkg-399b344/mage.js");
+  m.default({ module_or_path: "./pkg-399b344/mage_bg.wasm" }).catch((e) => {
     if (!String(e).includes("Using exceptions for control flow")) { msg.textContent = "Could not start: " + e; console.error(e); }
   });
 </script>
