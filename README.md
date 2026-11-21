@@ -1,6 +1,6 @@
-# Ember Mage, playable build
+# RuneCraft, playable build
 
-The browser build of Ember Mage, an original third-person wizard game (Rust and Bevy, WebGL2).
+The browser build of RuneCraft, an original third-person wizard game (Rust and Bevy, WebGL2).
 
 - Play: https://gberlian.github.io/ember-mage-play/
 - Link to share on X (a player card that plays in the post): https://gberlian.github.io/ember-mage-play/card.html
