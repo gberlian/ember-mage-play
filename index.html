@@ -16,7 +16,7 @@
   #bar { width: 260px; height: 6px; margin: 14px auto 0; background: #3a2f44; border-radius: 3px; overflow: hidden; }
   #bar i { display: block; height: 100%; width: 0; background: #ffb347; transition: width .3s; }
 </style>
-<meta name="build" content="bfa8004-dirty"><script>console.info("RuneCraft build bfa8004-dirty")</script></head>
+<meta name="build" content="ed36ca9"><script>console.info("RuneCraft build ed36ca9")</script></head>
 <body>
 <script>
   // Everyone joins the shared town (?solo plays alone; an explicit ?connect=... wins). The page
@@ -63,8 +63,8 @@
   document.addEventListener("pointerlockchange", sync);
   document.addEventListener("pointerlockerror", drag);
   new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["data-status"] });
-  const m = await import("./pkg-bfa8004-dirty/mage.js");
-  m.default({ module_or_path: "./pkg-bfa8004-dirty/mage_bg.wasm" }).catch((e) => {
+  const m = await import("./pkg-ed36ca9/mage.js");
+  m.default({ module_or_path: "./pkg-ed36ca9/mage_bg.wasm" }).catch((e) => {
     if (!String(e).includes("Using exceptions for control flow")) { msg.textContent = "Could not start: " + e; console.error(e); }
   });
 </script>
@@ -158,6 +158,26 @@
       .then((v) => { if (v.build && v.build !== mine) b.hidden = false; }).catch(() => {});
     b.onclick = () => { const q = new URLSearchParams(location.search); q.set("v", Date.now()); location.search = q.toString(); };
     check(); setInterval(check, 60000);
+  })();
+</script>
+<div id="diag" hidden></div>
+<style>
+  #diag { position: fixed; right: 10px; bottom: 10px; padding: 6px 9px; border-radius: 8px; background: #0b0812cc; color: #e9dcc8; font: 11px/1.45 ui-monospace, Consolas, monospace; pointer-events: none; white-space: pre; z-index: 5; }
+  #diag .bad { color: #ff6b5e; }
+  .touch #diag { bottom: auto; top: 44px; }
+</style>
+<script>
+  // Network diagnostics corner (the game writes <body data-net>; ?nodiag hides it).
+  (() => { if (new URLSearchParams(location.search).has("nodiag")) return;
+    const el = document.getElementById("diag");
+    const show = () => { const v = (document.body.dataset.net || "").split("|"); if (v.length < 11) return;
+      const [client, server, rtt, tick, snaps, buf, dropped, late, players, fps, on] = v;
+      const esc = (t) => String(t).replace(/[<>&]/g, "");
+      const mismatch = on === "1" && server && server !== client;
+      el.innerHTML = `build ${esc(client)}<span class="${mismatch ? "bad" : ""}"> / server ${esc(server || "-")}</span>\n`
+        + (on === "1" ? `ping ${rtt} ms · tick ${tick} · snap ${snaps}/s\nbuffer ${buf} ms · drop ${dropped} · late ${late}\nplayers ${players} · ${fps} fps` : `offline · ${fps} fps`);
+      el.hidden = false; };
+    new MutationObserver(show).observe(document.body, { attributes: true, attributeFilter: ["data-net"] });
   })();
 </script>
 <div id="live" hidden></div>
